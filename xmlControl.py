@@ -40,9 +40,9 @@ class xmlControl:
         client_secret = "ab2ac2c04da54c3d"
         conn = http.client.HTTPConnection("safe182.go.kr")
         #conn.set_debuglevel(1) #debug mode �¦ㅼ��
-        #headers = {"esntlId": client_id, "authKey": client_secret, "rowSize":"10"}
+        #headers = {"esntlId": client_id, "authKey": client_secret, "rowSize":"8"}
         headers ={}
-        finalparams = "?esntlId=" + client_id +"&authKey="+client_secret+"&rowSize="+"10"+"&xmlUseYN=Y"+ params
+        finalparams = "?esntlId=" + client_id +"&authKey="+client_secret+"&rowSize="+"8"+"&xmlUseYN=Y"+ params
         conn.request("POST", "/api/lcm/findChildList.do" + finalparams, None, headers)
         res = conn.getresponse()
         if int(res.status) == 200 :
@@ -69,20 +69,22 @@ class xmlControl:
             ageNow = item.find("ageNow")
             dressing = item.find("alldressingDscd")
             occrde = item.find("occrde")
-            data.append({"name":name, "gender":gender, "age":age, "ageNow":ageNow, "dressing":dressing\
-                         , "occrde":occrde, "occradres":occrAdres, "etc":writngTrgetDscd})
+            photo = item.find("tknphotoFile")
+            data.append({"name":str(name.text), "gender":str(gender.text), "age":str(age.text), "ageNow":str(ageNow.text), \
+                         "dressing":str(dressing.text), "occrde":str(occrde.text), "occrAdres":str(occrAdres.text)\
+                            , "etc":str(writngTrgetDscd.text), "photo":str(photo.text)})
         return data
 
 
     def test(params):
         datas = xmlControl.loadXmlFromOpenAPI(params)
         for data in datas:
-            print("name " + str(data["name"].text))
-            print("gender " + str(data["gender"].text))
-            print("age " + str(data["age"].text))
-            print("ageNow " + str(data["ageNow"].text))
-            print("dressing " + str(data["dressing"].text))
-            print("occrde " + str(data["occrde"].text))
-            print("occradres " + str(data["occradres"].text))
-            print("etc " + str(data["etc"].text))
+            print("name " +data["name"])
+            print("gender " + data["gender"])
+            print("age " + data["age"])
+            print("ageNow " + data["ageNow"])
+            print("dressing " +data["dressing"])
+            print("occrde " + data["occrde"])
+            print("occrAdres " + data["occrAdres"])
+            print("etc " + data["etc"])
             print("=====================================")
