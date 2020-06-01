@@ -9,6 +9,8 @@ class FrameWork:
             print("XML 데이터 읽기를 실패하였습니다.")
             return None
 
+        self.index = 1
+
         #window 생성
         self.window = Tk()
         self.window.title("Find for")
@@ -25,9 +27,7 @@ class FrameWork:
         #라디오 버튼 생성 함수
         self.setupRadio()
         #리스트 생성 함수
-        self.setupListBox()
-
-
+        self.setupListBox(self.index)
 
         #실종아동 이미지용 캔버스
         self.PhothCanvas = Canvas(self.window, width=200,height=200,bg="white")
@@ -39,11 +39,12 @@ class FrameWork:
 
         self.window.mainloop()
 
-    def setupListBox(self):
+    def setupListBox(self, num):
+        #리스트 생성시 정보 불러오기
         self.listBox = Listbox(self.window, width=58, height=8, font=self.fontstyle2)
         self.listBox.place(x=10, y=250)
         self.listBoxCount = 8
-        for i in range(8):
+        for i in range(8*(num-1), 8*num):
             self.listBox.insert(i, self.data.toStringData(i))
 
 
@@ -80,23 +81,23 @@ class FrameWork:
 
     def setupLabel(self):
         #검색한 결과 라벨
-        self.LResultName = Label(text="이름: ",width = 8, height = 1, font = self.fontstyle, bg='silver')
-        self.LResultName.place(x=210,y=10)
+        self.LResultName = Label(text="이름: ", font = self.fontstyle, bg='silver')
+        self.LResultName.place(x=220,y=10)
 
-        self.LResultGender = Label(text="성별: ", width=8, height=1, font=self.fontstyle, bg='silver')
-        self.LResultGender.place(x=210, y=55)
+        self.LResultGender = Label(text="성별: ", font=self.fontstyle, bg='silver')
+        self.LResultGender.place(x=220, y=55)
 
-        self.LResultTime = Label(text="발생 일시: ", width=10, height=1, font=self.fontstyle, bg='silver')
+        self.LResultTime = Label(text="발생 일시: ",  font=self.fontstyle, bg='silver')
         self.LResultTime.place(x=220, y=100)
 
-        self.LResultAge = Label(text="당시 나이: ", width=10, height=1, font=self.fontstyle, bg='silver')
+        self.LResultAge = Label(text="당시 나이: ", font=self.fontstyle, bg='silver')
         self.LResultAge.place(x=220, y=145)
 
-        self.LResultCurrentAge = Label(text="현재 나이: ", width=10, height=1, font=self.fontstyle, bg='silver')
+        self.LResultCurrentAge = Label(text="현재 나이: ", font=self.fontstyle, bg='silver')
         self.LResultCurrentAge.place(x=220, y=185)
 
-        self.LResultRemarks = Label(text="비고 사항: ",width=10,height=1,font=self.fontstyle,bg='silver')
-        self.LResultRemarks.place(x=20,y=220)
+        self.LResultRemarks = Label(text="비고 사항: ",font=self.fontstyle2,bg='silver')
+        self.LResultRemarks.place(x=10,y=220)
 
         #검색하는 곳 라벨
         self.LSearchName = Label(text = "이름:", width = 8, height = 1, font = self.fontstyle, bg='silver')
@@ -151,7 +152,10 @@ class FrameWork:
         self.RSearchMale.place(x=50,y=485)
 
         self.RSearchFemale = Radiobutton(self.window, text='여자', value=2, variable=gender, font=self.fontstyle, bg='silver')
-        self.RSearchFemale.place(x=230, y=485)
+        self.RSearchFemale.place(x=200, y=485)
+
+        self.RSearchFemale = Radiobutton(self.window, text='모두', value=3, variable=gender, font=self.fontstyle, bg='silver')
+        self.RSearchFemale.place(x=350, y=485)
 
     def pressedGMail(self):
         #GMail버튼 누를시
@@ -170,21 +174,48 @@ class FrameWork:
         pass
     def pressedPrew(self):
         #실종아동 리스트에서 < 버튼 눌렀을시
-        pass
+        if self.index <= 1:
+            self.index = 1
+        else:
+            self.index  -= 1
+        self.setupListBox(self.index)
 
     def pressedNext(self):
         #실종아동 리스트에서 > 버튼 눌렀을시
-        pass
+        self.index += 1
+        self.setupListBox(self.index)
+
+    def ectType(self, person):
+        #비고사항 구분
+        if person == '010':
+            return "정상"
+        if person == '020':
+            return "가출인"
+        if person == '040':
+            return "시설보호무연고자"
+        if person == '060':
+            return "지적장애인"
+        if person == '061':
+            return "지적장애인(18세미만)"
+        if person == '062':
+            return "지적장애인(18세이상)"
+        if person == '070':
+            return "치매질환자"
+        if person == '080':
+            return "불상(기타)"
+        return ""
+
 
     def pressedRenewal(self):
         #리스트 눌러졌을 때의 처리
         person = self.data.getData(self.listBox.curselection()[0])
-        self.LResultName.configure(text=person["name"])
-        self.LResultGender.configure(text=person["gender"])
-        self.LResultPoint.configure(text=person["occrAdres"])
-        self.LResultRemarks.configure(text=person["etc"])
-        self.LResultTime.configure(text=person["occrde"])
-        self.LResultCurrentAge.configure(text=person["ageNow"])
-        self.LResultAge.configure(text=person["age"])
+        self.LResultName.configure(text= "이름: " + person["name"])
+        self.LResultGender.configure(text="성별: " + person["gender"])
+        self.LResultRemarks.configure(text= "비고 사항: " + person["occrAdres"] + "/" + self.ectType(person["etc"]))
+        self.LResultTime.configure(text= "발생 일시: " + person["occrde"])
+        self.LResultCurrentAge.configure(text="현재 나이: " + person["ageNow"])
+        self.LResultAge.configure(text="당시 나이: " + person["age"])
+
+
 
 FrameWork()
