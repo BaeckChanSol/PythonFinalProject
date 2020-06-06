@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import font
 from DataBase import  *
+
 class FrameWork:
     def __init__(self):
         # 데이터 베이스 생성
@@ -49,17 +50,22 @@ class FrameWork:
 
 
     def setupButton(self):
+        self.gMapImage = PhotoImage(file = "구글지도.png")
+        self.telegramImage = PhotoImage(file="텔레그램.png")
+        self.gMailImage = PhotoImage(file="G메일.png")
+
         #구글맵 버튼
-        self.GMapButton = Button(self.window, width=14, height=6, command=self.pressedTelegram)
+        self.GMapButton = Button(self.window, image = self.gMapImage, command=self.pressedTelegram)
+        self.GMapButton.config(image=self.gMapImage)
         self.GMapButton.place(x=440, y=450)
 
         #텔레그램 버튼
-        self.TelegramButton = Button(self.window, width=14, height=6, command=self.pressedGMap)
+        self.TelegramButton = Button(self.window,image = self.telegramImage, command=self.pressedGMap)
         self.TelegramButton.place(x=560, y=450)
 
         #GMail 버튼
-        self.GMailButton = Button(self.window, width=14, height=6, command=self.pressedGMail)
-        self.GMailButton.place(x=680, y=450)
+        self.GMailButton = Button(self.window,image = self.gMailImage, command=self.pressedGMail)
+        self.GMailButton.place(x=680, y=455)
 
         #검색 버튼
         self.SearchButton = Button(self.window,text = "검색", width = 8, height = 1,font = self.fontstyle, command = self.pressedSearch)
@@ -99,6 +105,9 @@ class FrameWork:
         self.LResultRemarks = Label(text="비고 사항: ",font=self.fontstyle2,bg='silver')
         self.LResultRemarks.place(x=10,y=220)
 
+        self.LResultPoint = Label(text="발생 장소:", font=self.fontstyle, bg='silver')
+        self.LResultPoint.place(x=445, y=400)
+
         #검색하는 곳 라벨
         self.LSearchName = Label(text = "이름:", width = 8, height = 1, font = self.fontstyle, bg='silver')
         self.LSearchName.place(x=-10,y=450)
@@ -114,9 +123,6 @@ class FrameWork:
 
         self.LSearchTime = Label(text="발생 날짜:", width=8, height=1, font=self.fontstyle, bg='silver')
         self.LSearchTime.place(x=10, y=555)
-
-        self.LResultPoint = Label(text="발생 장소:", width=8, height=1, font=self.fontstyle, bg='silver')
-        self.LResultPoint.place(x=460, y=400)
 
         #우측 아래 버튼의 라벨
         self.LGmailText = Label(text="구글 지도 열기", font = self.fontstyle ,bg = 'silver')
@@ -215,6 +221,7 @@ class FrameWork:
         self.LResultTime.configure(text= "발생 일시: " + person["occrde"])
         self.LResultCurrentAge.configure(text="현재 나이: " + person["ageNow"])
         self.LResultAge.configure(text="당시 나이: " + person["age"])
+        self.LResultPoint.configure(text = "발생 장소: "+ person["occrAdres"])
 
 
 
