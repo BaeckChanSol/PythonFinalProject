@@ -1,24 +1,29 @@
 import smtplib
+import mimetypes
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
-import mimetypes
-
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 class Gmail:
-    def sendMeesage(recipientAddr, message):
+    def sendMessage(recipientAddr, title, message):
         host = "smtp.gmail.com"
         port = "587"
-        senderAddr = "아이디"
-        msg = MIMEBase("multipart", "alternative")
-        msg['Subject'] = message
+        senderAddr = "csb2987@gmail.com"
+        msg = MIMEMultipart()
+        msg['Subject'] = title
         msg['From'] = senderAddr
         msg['To'] = recipientAddr
+        with open("picture.gif", 'rb') as f:
+            part = MIMEImage(f.read())
+            msg.attach(part)
+        for str in message:
+            part = MIMEText(str)
+            msg.attach(part)
         s = smtplib.SMTP(host, port)
         # s.set_debuglevel(1)        # 디버깅이 필요할 경우 주석을 푼다.
         s.ehlo()
         s.starttls()
         s.ehlo()
-        s.login(senderAddr,"비번")
+        s.login(senderAddr,"비밀번호")
         s.sendmail(senderAddr, [recipientAddr], msg.as_string())
         s.close()
-
-

@@ -1,17 +1,19 @@
 from tkinter import *
 from tkinter import font
 from DataBase import  *
-
+from Gmap import *
+from tkinter import messagebox
+import webbrowser
+from urllib import parse
+import base64
+from PIL import Image,ImageTk
+from io import BytesIO
+from Gmail import *
 class FrameWork:
     def __init__(self):
         # 데이터 베이스 생성
-        self.data = DataBase()
-        if self.data == None:
-            print("XML 데이터 읽기를 실패하였습니다.")
-            return None
-
+        self.param = ""
         self.index = 1
-
         #window 생성
         self.window = Tk()
         self.window.title("Find for")
@@ -30,9 +32,9 @@ class FrameWork:
         #리스트 생성 함수
         self.setupListBox(self.index)
 
-        #실종아동 이미지용 캔버스
-        self.PhothCanvas = Canvas(self.window, width=200,height=200,bg="white")
-        self.PhothCanvas.place(x=10,y=10)
+        #실종아동 이미지용 라벨
+        self.photo = Canvas(self.window, width=200,height=200, bg='white')
+        self.photo.place(x=10,y=10)
 
         #지도용 캠버스
         self.MapCanvas = Canvas(self.window,width=340,height=370,bg="white")
@@ -45,8 +47,12 @@ class FrameWork:
         self.listBox = Listbox(self.window, width=58, height=8, font=self.fontstyle2)
         self.listBox.place(x=10, y=250)
         self.listBoxCount = 8
-        for i in range(8*(num-1), 8*num):
-            self.listBox.insert(i, self.data.toStringData(i))
+        try:
+            self.data = DataBase(num, self.param)
+            for i in range(8):
+                self.listBox.insert(i, self.data.toStringData(i))
+        except:
+            messagebox.showinfo(title="XML 관련 안내",message="XML 데이터 로드에 실패하였습니다.")
 
 
     def setupButton(self):
@@ -55,12 +61,12 @@ class FrameWork:
         self.gMailImage = PhotoImage(file="G메일.png")
 
         #구글맵 버튼
-        self.GMapButton = Button(self.window, image = self.gMapImage, command=self.pressedTelegram)
+        self.GMapButton = Button(self.window, image = self.gMapImage, command=self.pressedGMap)
         self.GMapButton.config(image=self.gMapImage)
         self.GMapButton.place(x=440, y=450)
 
         #텔레그램 버튼
-        self.TelegramButton = Button(self.window,image = self.telegramImage, command=self.pressedGMap)
+        self.TelegramButton = Button(self.window,image = self.telegramImage, command=self.pressedTelegram)
         self.TelegramButton.place(x=560, y=450)
 
         #GMail 버튼
@@ -105,8 +111,8 @@ class FrameWork:
         self.LResultRemarks = Label(text="비고 사항: ",font=self.fontstyle2,bg='silver')
         self.LResultRemarks.place(x=10,y=220)
 
-        self.LResultPoint = Label(text="발생 장소:", font=self.fontstyle, bg='silver')
-        self.LResultPoint.place(x=445, y=400)
+        self.LResultPoint = Label(text="그래프", font=self.fontstyle, bg='silver', anchor="center")
+        self.LResultPoint.place(x=590, y=390)
 
         #검색하는 곳 라벨
         self.LSearchName = Label(text = "이름:", width = 8, height = 1, font = self.fontstyle, bg='silver')
@@ -136,48 +142,128 @@ class FrameWork:
 
     def setupEntry(self):
         #이름 입력받는 Entry
-        self.ESearchName = Entry(self.window,font = self.fontstyle, width = 19)
+        self.name_var = StringVar()
+        self.ESearchName = Entry(self.window,font = self.fontstyle, width = 19, textvariable=self.name_var)
         self.ESearchName.place(x=50,y=450)
 
         #나이 입력받는 Entry
-        self.ESearchAge = Entry(self.window,font = self.fontstyle, width=11)
+        self.age_var = StringVar()
+        self.ESearchAge = Entry(self.window,font = self.fontstyle, width=11, textvariable=self.age_var)
         self.ESearchAge.place(x = 320,y=450)
 
         #실종사건 발생장소 입력받는 Entry
-        self.ESearchPoint = Entry(self.window, font=self.fontstyle, width=36)
+        self.point_var = StringVar()
+        self.ESearchPoint = Entry(self.window, font=self.fontstyle, width=36, textvariable=self.point_var)
         self.ESearchPoint.place(x=90, y=520)
 
         #실종사건 발생날짜 입력받는 Entry
-        self.ESearchTime = Entry(self.window, font=self.fontstyle, width=25)
+        self.date_var = StringVar()
+        self.ESearchTime = Entry(self.window, font=self.fontstyle, width=25, textvariable=self.date_var)
         self.ESearchTime.place(x=90, y=555)
 
     def setupRadio(self):
         #성별 받는 라디오 버튼
-        gender = IntVar()
-        self.RSearchMale = Radiobutton(self.window,text = '남자',value = 1, variable = gender, font=self.fontstyle,bg = 'silver')
+        self.gender_var = IntVar()
+        self.RSearchMale = Radiobutton(self.window,text = '남자',value = 1, variable = self.gender_var, font=self.fontstyle,bg = 'silver')
         self.RSearchMale.place(x=50,y=485)
 
-        self.RSearchFemale = Radiobutton(self.window, text='여자', value=2, variable=gender, font=self.fontstyle, bg='silver')
+        self.RSearchFemale = Radiobutton(self.window, text='여자', value=2, variable=self.gender_var, font=self.fontstyle, bg='silver')
         self.RSearchFemale.place(x=200, y=485)
 
-        self.RSearchFemale = Radiobutton(self.window, text='모두', value=3, variable=gender, font=self.fontstyle, bg='silver')
+        self.RSearchFemale = Radiobutton(self.window, text='모두', value=3, variable=self.gender_var, font=self.fontstyle, bg='silver')
         self.RSearchFemale.place(x=350, y=485)
 
     def pressedGMail(self):
-        #GMail버튼 누를시
-        pass
+        try:
+            person = self.data.getData(self.listBox.curselection()[0])
+            self.message = ["이름 : " + str(person["name"]), "성 : " + str(person["gender"]),
+                      "나이 : " + str(person["age"]) + "->" + str(person["ageNow"])
+                      ,"지역: "+ str(person["occrAdres"]), "발생 일시 : " + person["occrde"] ,
+                            "기타 사항 : "+ self.ectType(person["etc"])]
+            with open("picture.gif","wb") as f:
+                f.write(base64.b64decode(person["photo"]))
+            print(self.message)
+        except:
+            messagebox.showinfo(title="메일 이용 안내", message="메일 전송 전에 데이터를 선택해주세요.")
+            return
 
+        self.miniWindow = Tk()
+        Label(self.miniWindow,text="이메일").grid(row=0,column=0)
+        self.emailstr = StringVar()
+        self.miniEntry = Entry(self.miniWindow,textvariable=self.emailstr)
+        self.miniEntry.grid(row=0,column=1)
+        Button(self.miniWindow, text="데이터 전송", command=self.PressedsendMail).grid(row=0,column=2)
+        self.miniWindow.mainloop()
+
+    def PressedsendMail(self):
+        to = self.miniEntry.get()
+        Gmail.sendMessage(to, "실종 아동 데이터", self.message)
+        self.miniWindow.destroy()
     def pressedGMap(self):
-        #구글지도 버튼 누를시
-        pass
+        try:
+            person = self.data.getData(self.listBox.curselection()[0])
+        except:
+            messagebox.showinfo(title="지도 이용 안내",message="지도를 열고 싶은 데이터를 선택해주세요.")
+            return
+        Gmap.updateLocation(person["occrAdres"])
+        webbrowser.open_new('osm.html')
 
     def pressedTelegram(self):
-        #텔레그램 버튼 누를시
-        pass
+        import socket
+        data = ""
+        try:
+            person = self.data.getData(self.listBox.curselection()[0])
+            with open("picture.gif","wb") as f:
+                f.write(base64.b64decode(person["photo"]))
+            data += "이름 : " +person["name"] + "\t"
+            data += "성별 : " +person["gender"] + "\t"
+            data += "주소 : " +person["occrAdres"]  + "\t"
+            data += "분류 : " +self.ectType(person["etc"]) + "\t"
+            data += "발생일시 : " +person["occrde"] + "\t"
+            data += "현재나이 ; " +person["ageNow"] + "\t"
+            data += "당시나이 : " +person["age"] + "\t"
+            data += "발생장소 : " +person["occrAdres"]
+        except:
+            messagebox.showinfo(title="텔레그램 이용 안내",message="정보 갱신을 통해 보내고자하는 데이터를 선택해주세요.")
+            return
+        HOST = '127.0.0.1'  # localhost
+        PORT = 50007  # 서버와 같은 포트를 사용함
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 소켓 생성
+            s.connect((HOST, PORT))
+            s.send(data.encode())  # 문자를 보냄
+            code = s.recv(1024)  # 서버로 부터 정보를 받음
+            s.close()
+            print(code.decode())
+            messagebox.showinfo(title="텔레그램 이용 안내",message="텔레그램 데이터 전송 완료.\n텔레그렘 봇에 " + code.decode() + "를 입력해주세요.")
+        except:
+            messagebox.showinfo(title="텔레그램 이용 안내",message="텔레그램 서버가 닫혀있습니다.")
+            return
 
     def pressedSearch(self):
-        #검색 버튼 누를시
-        pass
+        self.param = ""
+        name = self.name_var.get()
+        if name != "":
+            self.param += "&nm="+parse.quote(name)
+        age = self.age_var.get()
+        if age != "":
+            self.param += "&age1="+age
+            self.param += "&age2=" + age
+        area = self.point_var.get()
+        if area != "":
+            self.param += "&occrAdres="+parse.quote(area)
+        time = self.date_var.get()
+        if time != "":
+            self.param += "&detailDate1="+time
+            self.param += "&detailDate2=" + time
+        gender = self.gender_var.get()
+        if gender == 1:
+            self.param += "&sexdstnDscd=" + str(gender)
+        elif gender == 2:
+            self.param += "&sexdstnDscd=" + str(gender)
+        self.index = 1
+        self.setupListBox(self.index)
+
     def pressedPrew(self):
         #실종아동 리스트에서 < 버튼 눌렀을시
         if self.index <= 1:
@@ -214,14 +300,22 @@ class FrameWork:
 
     def pressedRenewal(self):
         #리스트 눌러졌을 때의 처리
-        person = self.data.getData(self.listBox.curselection()[0])
-        self.LResultName.configure(text= "이름: " + person["name"])
-        self.LResultGender.configure(text="성별: " + person["gender"])
-        self.LResultRemarks.configure(text= "비고 사항: " + person["occrAdres"] + "/" + self.ectType(person["etc"]))
-        self.LResultTime.configure(text= "발생 일시: " + person["occrde"])
-        self.LResultCurrentAge.configure(text="현재 나이: " + person["ageNow"])
-        self.LResultAge.configure(text="당시 나이: " + person["age"])
-        self.LResultPoint.configure(text = "발생 장소: "+ person["occrAdres"])
+        try:
+            person = self.data.getData(self.listBox.curselection()[0])
+            self.LResultName.configure(text= "이름: " + person["name"])
+            self.LResultGender.configure(text="성별: " + person["gender"])
+            self.LResultRemarks.configure(text= "비고 사항: " + person["occrAdres"] + "/" + self.ectType(person["etc"]))
+            self.LResultTime.configure(text= "발생 일시: " + person["occrde"])
+            self.LResultCurrentAge.configure(text="현재 나이: " + person["ageNow"])
+            self.LResultAge.configure(text="당시 나이: " + person["age"])
+
+
+            img = ImageTk.PhotoImage(Image.open(BytesIO(base64.b64decode(person['photo']))))
+            self.photo.delete("all")
+            self.photo.create_image(100,100,image=img)
+            self.photo.image = img
+        except:
+            messagebox.showinfo(title="갱신 안내", message="갱신하고자 하는 데이터를 선택해주세요.")
 
 
 

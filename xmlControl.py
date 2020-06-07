@@ -3,6 +3,7 @@ import os
 import sys
 import http.client
 
+from xml.etree import ElementTree
 # 사용법 (20.05.26 작성)
 # loadXmlFromOpenAPI에 params를 넘겨준다. 이 함수의 리턴값을 받는다.
 # params는 예시를 사용하여 요청변수 page를 활용한다 했을때
@@ -36,13 +37,13 @@ import http.client
 
 class xmlControl:
     def loadXmlFromOpenAPI(params):
-        client_id = ""
-        client_secret = ""
+        client_id = "아이디"
+        client_secret = "비밀번호"
         conn = http.client.HTTPConnection("safe182.go.kr")
         #conn.set_debuglevel(1) #debug mode �¦ㅼ��
         #headers = {"esntlId": client_id, "authKey": client_secret, "rowSize":"8"}
         headers ={}
-        finalparams = "?esntlId=" + client_id +"&authKey="+client_secret+"&rowSize="+"8"+"&xmlUseYN=Y"+ params
+        finalparams = "?esntlId=" + client_id +"&authKey="+client_secret+"&rowSize=8"+"&xmlUseYN=Y" + params
         conn.request("POST", "/api/lcm/findChildList.do" + finalparams, None, headers)
         res = conn.getresponse()
         if int(res.status) == 200 :
@@ -56,7 +57,6 @@ class xmlControl:
 
 
     def extractData(strXml):
-        from xml.etree import  ElementTree
         tree = ElementTree.fromstring(strXml)
         itemElements = tree.iter("item")
         data = []
@@ -88,3 +88,5 @@ class xmlControl:
             print("occrAdres " + data["occrAdres"])
             print("etc " + data["etc"])
             print("=====================================")
+
+xmlControl
