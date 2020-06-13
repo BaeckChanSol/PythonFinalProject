@@ -27,8 +27,8 @@ class Telegram:
             self.sendMessage(chat_id, "요청되지 않은 실종 아동 정보 데이터 요청코드입니다.")
 
     def __init__(self):
-        ID = '아이디'
-        PASS = '비밀번호'
+        ID = '1184104727'
+        PASS = ''
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((HOST, PORT))
 

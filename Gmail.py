@@ -24,6 +24,6 @@ class Gmail:
         s.ehlo()
         s.starttls()
         s.ehlo()
-        s.login(senderAddr,"비밀번호")
+        s.login(senderAddr,"")
         s.sendmail(senderAddr, [recipientAddr], msg.as_string())
         s.close()

@@ -9,6 +9,7 @@ import base64
 from PIL import Image,ImageTk
 from io import BytesIO
 from Gmail import *
+
 class FrameWork:
     def __init__(self):
         # 데이터 베이스 생성

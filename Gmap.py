@@ -5,7 +5,7 @@ import googlemaps
 class Gmap:
     def updateLocation(find_loc):
         # 찾을 위치. 한글이므로 유니코드의 u를 붙여줘야한다.
-        gmaps = googlemaps.Client(key="지도비밀번호")
+        gmaps = googlemaps.Client(key="-")
         geo = gmaps.geocode(find_loc)
         lat_long = [geo[0]['geometry']['location']['lat'], geo[0]['geometry']['location']['lng']]
 
