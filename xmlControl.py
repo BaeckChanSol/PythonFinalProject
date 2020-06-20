@@ -37,7 +37,7 @@ from xml.etree import ElementTree
 
 class xmlControl:
     def loadXmlFromOpenAPI(params):
-        client_id = "10000335"
+        client_id = ""
         client_secret = ""
         conn = http.client.HTTPConnection("safe182.go.kr")
         #conn.set_debuglevel(1) #debug mode �¦ㅼ��
