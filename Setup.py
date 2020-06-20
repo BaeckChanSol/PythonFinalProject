@@ -8,5 +8,5 @@ setup(name='FindFor',
       ext_package='pkg',
       py_modules=['DataBase' 'FrameWork', 'Gmail', 'Gmap', 'GraphData', 'Telegram', 'xmlControl', 'Setup'],
       ext_modules=[cMod],
-      package_data=['구글지도.png', '텔레그램.png', 'G메일.png']
+      data_files=[('',['GoogleMap.png']),('',['Telegram.png']),('',['Gmail.png'])]
       )
