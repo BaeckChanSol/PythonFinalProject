@@ -170,8 +170,8 @@ class FrameWork:
         self.LSearchTime.place(x=10, y=555)
 
         #우측 아래 버튼의 라벨
-        self.LGmailText = Label(text="구글 지도 열기", font = self.fontstyle ,bg = 'silver')
-        self.LGmailText.place(x = 435, y=560)
+        self.LGmailText = Label(text="지도 열기", font = self.fontstyle ,bg = 'silver')
+        self.LGmailText.place(x = 460, y=560)
 
         self.LTelegramText = Label(text="Telegram 전송", font=self.fontstyle, bg='silver')
         self.LTelegramText.place(x=555, y=560)
