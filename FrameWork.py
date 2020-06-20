@@ -81,9 +81,9 @@ class FrameWork:
 
 
     def setupButton(self):
-        self.gMapImage = PhotoImage(file = "구글지도.png")
-        self.telegramImage = PhotoImage(file="텔레그램.png")
-        self.gMailImage = PhotoImage(file="G메일.png")
+        self.gMapImage = PhotoImage(file = "GoogleMap.png")
+        self.telegramImage = PhotoImage(file="Telegram.png")
+        self.gMailImage = PhotoImage(file="Gmail.png")
 
         #구글맵 버튼
         self.GMapButton = Button(self.window, image = self.gMapImage, command=self.pressedGMap)
