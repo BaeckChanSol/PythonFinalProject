@@ -43,7 +43,7 @@ class xmlControl:
         #conn.set_debuglevel(1) #debug mode �¦ㅼ��
         #headers = {"esntlId": client_id, "authKey": client_secret, "rowSize":"8"}
         headers ={}
-        finalparams = "?esntlId=" + client_id +"&authKey="+client_secret+"&rowSize=8"+"&xmlUseYN=Y" + params
+        finalparams = "?esntlId=" + client_id +"&authKey="+client_secret+"&xmlUseYN=Y" + params
         conn.request("POST", "/api/lcm/findChildList.do" + finalparams, None, headers)
         res = conn.getresponse()
         if int(res.status) == 200 :
@@ -55,6 +55,30 @@ class xmlControl:
             return None
         conn.close()
 
+    def loadPageFromOpenAPI(params):
+        client_id = ""
+        client_secret = ""
+        conn = http.client.HTTPConnection("safe182.go.kr")
+        # conn.set_debuglevel(1) #debug mode �¦ㅼ��
+        # headers = {"esntlId": client_id, "authKey": client_secret, "rowSize":"8"}
+        headers = {}
+        finalparams = "?esntlId=" + client_id + "&authKey=" + client_secret + "&xmlUseYN=Y" + params
+        conn.request("POST", "/api/lcm/findChildList.do" + finalparams, None, headers)
+        res = conn.getresponse()
+        if int(res.status) == 200:
+            print("xml data downloading is complete!")
+            return xmlControl.extractPage(res.read())
+        else:
+            print("HTTP Request is failed :" + res.reason)
+            print(res.read().decode('utf-8'))
+            return None
+        conn.close()
+
+    def extractPage(strXml):
+        tree = ElementTree.fromstring(strXml)
+        items = tree.iter("document")
+        for item in items:
+            return item.find("totalCount").text
 
     def extractData(strXml):
         tree = ElementTree.fromstring(strXml)
